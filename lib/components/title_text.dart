@@ -4,9 +4,9 @@ import '../size_config.dart';
 
 class TitleText extends StatelessWidget {
   const TitleText({
-    required Key key,
+    Key? key,
     required this.title,
-  }) : super(key: key);
+  });
 
   final String title;
 

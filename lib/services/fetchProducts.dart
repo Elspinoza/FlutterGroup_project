@@ -3,19 +3,22 @@ import 'dart:convert';
 import 'package:furniture_app/models/Product.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<Product>> fetchProducts() async {
-  const String apiUrl = 
-    "https://5f210aa9daa42f001666535e.mockapi.io/api/products";
+import '../constants.dart';
 
-  final response = await http.get(apiUrl as Uri);
+// Fetch our Products from API
+Future<List<Product>> fetchProducts() async {
+  final response = await http.get(Uri.parse('$apiUrl/products'));
 
   if (response.statusCode == 200) {
-    List<Product> products = ( json.decode(response.body) as List)
-        .map((data) => Product.fromJson(data))
-        .toList();
-
-    return products;
-  } else {
-    throw Exception('Failed to load');
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    /* List<Category> categories = (json.decode(response.body) as List)
+        .map((data) => Category.fromJson(data))
+        .toList(); */
+    final jsonResponse = json.decode(response.body);
+    if (jsonResponse != null && jsonResponse is List) {
+      return jsonResponse.map((json) => Product.fromJson(json)).toList();
+    }
   }
+  throw Exception('Failed to load');
 }
