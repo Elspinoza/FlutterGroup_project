@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:furniture_app/Auth/register.dart';
 import 'package:furniture_app/screens/home/home_screen.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -68,78 +70,8 @@ class LoginPage extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       child: StatefulBuilder(
                         builder: (BuildContext context, setState) {
-
                           return loading
-                              ? MaterialButton(
-                                  onPressed: () async {
-                                    if (email.text.isNotEmpty) {
-                                      if (password.text.isNotEmpty) {
-                                        setState(() {
-                                          loading = !loading;
-                                        });
-                                      } else {
-                                        newSnackBar(context,
-                                            title:
-                                                'Email and Password Required!');
-                                      }
-                                    } else {
-                                      newSnackBar(context,
-                                          title: 'Email Required!');
-                                    }
-
-                                    try {
-                                      await FirebaseAuth.instance
-                                          .signInWithEmailAndPassword(
-                                              email: email.text,
-                                              password: password.text)
-                                          .then((value) {
-                                        Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                HomeScreen(),
-                                          ),
-                                        );
-
-                                        setState(() {
-                                          loading = !loading;
-                                        });
-                                      });
-                                    } on FirebaseAuthException catch (e) {
-                                      if (e.code == 'user-not-found') {
-                                        newSnackBar(context,
-                                            title:
-                                                'No user found for that email.');
-                                        setState(() {
-                                          loading = !loading;
-                                        });
-                                      } else if (e.code == 'wrong-password') {
-                                        newSnackBar(context,
-                                            title:
-                                                'Wrong password provided for that user.');
-                                        setState(() {
-                                          loading = !loading;
-                                        });
-                                      }
-                                    }
-                                  },
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  color: Colors.blue,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(0, 15, 0, 15),
-                                        child: Text(
-                                          'Sign In',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
-                                  ))
-                              : Center(
+                              ? Center(
                                   child: MaterialButton(
                                     onPressed: () {},
                                     shape: const CircleBorder(),
@@ -150,6 +82,73 @@ class LoginPage extends StatelessWidget {
                                         color: Colors.white,
                                       ),
                                     ),
+                                  ),
+                                )
+                              : MaterialButton(
+                                  onPressed: () async {
+                                    if (email.text.isNotEmpty) {
+                                      if (password.text.isNotEmpty) {
+                                        setState(() {
+                                          loading = !loading;
+                                        });
+
+                                        // Appel de l'API Flask pour la connexion
+                                        final url =
+                                            'http://127.0.0.1:5000/login';
+                                        final response = await http.post(
+                                          Uri.parse(url),
+                                          headers: {
+                                            'Content-Type': 'application/json'
+                                          },
+                                          body: jsonEncode({
+                                            'email': email.text,
+                                            'password': password.text,
+                                          }),
+                                        );
+
+                                        if (response.statusCode == 200) {
+                                          // Connexion réussie
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  HomeScreen(),
+                                            ),
+                                          );
+                                        } else {
+                                          // Échec de la connexion
+                                          newSnackBar(context,
+                                              title: 'Échec de la connexion');
+                                        }
+
+                                        setState(() {
+                                          loading = !loading;
+                                        });
+                                      } else {
+                                        newSnackBar(context,
+                                            title:
+                                                'Email et mot de passe requis !');
+                                      }
+                                    } else {
+                                      newSnackBar(context,
+                                          title: 'Email requis !');
+                                    }
+                                  },
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  color: Colors.blue,
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 15, 0, 15),
+                                        child: Text(
+                                          'Sign In',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 );
                         },
@@ -220,7 +219,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-   void newSnackBar(BuildContext context, {required String title}) {
+  void newSnackBar(BuildContext context, {required String title}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(title),

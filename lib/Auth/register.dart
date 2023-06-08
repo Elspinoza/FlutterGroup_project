@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../screens/home/home_screen.dart';
 
 class UserRegister extends StatelessWidget {
@@ -106,66 +106,51 @@ class UserRegister extends StatelessWidget {
                                       setState(() {
                                         loading = true;
                                       });
-                                      try {
-                                        UserCredential userCredential =
-                                            await FirebaseAuth.instance
-                                                .createUserWithEmailAndPassword(
-                                          email: email.text,
-                                          password: password.text,
-                                        );
-                                        await FirebaseFirestore.instance
-                                            .collection("/demo/account/users")
-                                            .doc(userCredential.user!.uid)
-                                            .set({
-                                          'uid': userCredential.user!.uid,
+
+                                      // Appel de l'API Flask pour l'inscription
+                                      final url =
+                                          'http://127.0.0.1:5000/signup';
+                                      final response = await http.post(
+                                        Uri.parse(url),
+                                          headers: {
+                                            'Content-Type': 'application/json'
+                                          },
+                                          body: jsonEncode({
                                           'name': name.text,
                                           'email': email.text,
-                                        });
+                                          'password': password.text,
+                                        }),
+                                      );
+
+                                      if (response.statusCode == 200) {
+                                        // Inscription réussie
                                         email.clear();
                                         name.clear();
                                         password.clear();
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                HomeScreen(),
+                                            builder: (context) => HomeScreen(),
                                           ),
                                         );
-                                      } on FirebaseAuthException catch (e) {
-                                        if (e.code ==
-                                            'weak-password') {
-                                          newSnackBar(context,
-                                              title:
-                                                  'The password provided is too weak.');
-                                        } else if (e.code ==
-                                            'email-already-in-use') {
-                                          newSnackBar(context,
-                                              title:
-                                                  'The account already exists for that email.');
-                                        }
-                                      } catch (e) {
-                                        newSnackBar(context, title: e.toString());
-                                      } finally {
-                                        setState(() {
-                                          loading = false;
-                                        });
+                                      } else {
+                                        // Échec de l'inscription
+                                        newSnackBar(context,
+                                            title: 'Échec de l\'inscription');
                                       }
+
+                                      setState(() {
+                                        loading = false;
+                                      });
                                     } else {
-                                      newSnackBar(
-                                        context,
-                                        title: 'Password Required!',
-                                      );
+                                      newSnackBar(context,
+                                          title: 'Mot de passe requis !');
                                     }
                                   } else {
-                                    newSnackBar(
-                                      context,
-                                      title: 'Email Required!',
-                                    );
+                                    newSnackBar(context,
+                                        title: 'Email requis !');
                                   }
                                 } else {
-                                  newSnackBar(
-                                    context,
-                                    title: 'Name Required!',
-                                  );
+                                  newSnackBar(context, title: 'Nom requis !');
                                 }
                               },
                               shape: RoundedRectangleBorder(
@@ -233,4 +218,3 @@ class UserRegister extends StatelessWidget {
     );
   }
 }
-
