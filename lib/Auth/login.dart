@@ -68,9 +68,21 @@ class LoginPage extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       child: StatefulBuilder(
                         builder: (BuildContext context, setState) {
-
                           return loading
-                              ? MaterialButton(
+                              ? Center(
+                                  child: MaterialButton(
+                                    onPressed: () {},
+                                    shape: const CircleBorder(),
+                                    color: Colors.blue,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : MaterialButton(
                                   onPressed: () async {
                                     if (email.text.isNotEmpty) {
                                       if (password.text.isNotEmpty) {
@@ -95,8 +107,7 @@ class LoginPage extends StatelessWidget {
                                           .then((value) {
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                HomeScreen(),
+                                            builder: (context) => HomeScreen(),
                                           ),
                                         );
 
@@ -126,9 +137,9 @@ class LoginPage extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   color: Colors.blue,
-                                  child: Row(
+                                  child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
+                                    children: [
                                       Padding(
                                         padding:
                                             EdgeInsets.fromLTRB(0, 15, 0, 15),
@@ -138,20 +149,7 @@ class LoginPage extends StatelessWidget {
                                         ),
                                       ),
                                     ],
-                                  ))
-                              : Center(
-                                  child: MaterialButton(
-                                    onPressed: () {},
-                                    shape: const CircleBorder(),
-                                    color: Colors.blue,
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                );
+                                  ));
                         },
                       ),
                     ),
@@ -220,7 +218,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-   void newSnackBar(BuildContext context, {required String title}) {
+  void newSnackBar(BuildContext context, {required String title}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(title),
