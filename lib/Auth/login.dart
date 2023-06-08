@@ -106,19 +106,18 @@ class LoginPage extends StatelessWidget {
                                           }),
                                         );
 
-                                        if (response.statusCode == 200) {
-                                          // Connexion réussie
-                                          Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HomeScreen(),
-                                            ),
-                                          );
-                                        } else {
-                                          // Échec de la connexion
-                                          newSnackBar(context,
-                                              title: 'Échec de la connexion');
-                                        }
+                                    try {
+                                      await FirebaseAuth.instance
+                                          .signInWithEmailAndPassword(
+                                              email: email.text,
+                                              password: password.text)
+                                          .then((value) {
+                                        Navigator.of(context).pushReplacement(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                HomeScreen(),
+                                          ),
+                                        );
 
                                         setState(() {
                                           loading = !loading;
@@ -149,6 +148,18 @@ class LoginPage extends StatelessWidget {
                                         ),
                                       ),
                                     ],
+                                  ))
+                              : Center(
+                                  child: MaterialButton(
+                                    onPressed: () {},
+                                    shape: const CircleBorder(),
+                                    color: Colors.blue,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 );
                         },
