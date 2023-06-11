@@ -109,7 +109,7 @@ class UserRegister extends StatelessWidget {
 
                                       // Appel de l'API Flask pour l'inscription
                                       final url =
-                                          'http://127.0.0.1:5000/signup';
+                                          'http://127.0.0.1:4000/signup';
                                       final response = await http.post(
                                         Uri.parse(url),
                                           headers: {
@@ -127,6 +127,11 @@ class UserRegister extends StatelessWidget {
                                         email.clear();
                                         name.clear();
                                         password.clear();
+
+                                        setState(() {
+                                          loading = false;
+                                        });
+                                        
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                             builder: (context) => HomeScreen(),
@@ -134,6 +139,10 @@ class UserRegister extends StatelessWidget {
                                         );
                                       } else {
                                         // Échec de l'inscription
+                                            setState(() {
+                                              loading = false;
+                                            });
+
                                         newSnackBar(context,
                                             title: 'Échec de l\'inscription');
                                       }

@@ -94,7 +94,7 @@ class LoginPage extends StatelessWidget {
 
                                         // Appel de l'API Flask pour la connexion
                                         final url =
-                                            'http://127.0.0.1:5000/login';
+                                            'http://127.0.0.1:4000/login';
                                         final response = await http.post(
                                           Uri.parse(url),
                                           headers: {
@@ -106,20 +106,24 @@ class LoginPage extends StatelessWidget {
                                           }),
                                         );
 
-                                        if (response.statusCode == 200) {
-                                          // Connexion réussie
-                                          Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HomeScreen(),
-                                            ),
-                                          );
-                                        } else {
-                                          // Échec de la connexion
-                                          newSnackBar(context,
-                                              title: 'Échec de la connexion');
-                                        }
+                                          if (response.statusCode == 200) {
+                                            // Connexion réussie
+                                            // setState(() {
+                                            //   loading = false;
+                                            // });
 
+                                            Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(
+                                                builder: (context) => HomeScreen(),
+                                              ),
+                                            );
+                                          } else {
+                                            // Échec de la connexion
+                                            setState(() {
+                                              loading = false;
+                                            });
+                                            newSnackBar(context, title: 'Échec de la connexion');
+                                          }
                                         setState(() {
                                           loading = !loading;
                                         });
